@@ -1,0 +1,26 @@
+-R . Obs
+
+# preliminaries
+notations.v
+list_tools.v
+decidable_prop.v
+list_dec.v
+
+# graphs and cliques
+coherence_graph_ne.v
+
+# syntax of observations
+syntax_obs.v
+equiv_obs.v
+laws.v
+
+# semantics
+sem_obs.v
+
+# classes of graphs
+fan.v
+anticlique.v
+product.v
+
+# finitary semantics
+fin_sem_obs.v
