@@ -183,16 +183,16 @@ Section s.
   Qed.
 
   (** * Cliques are either empty or singletons *)
-  Remark cliques_at_most_one_elt α a b :
-    a ∊ α -> b ∊ α -> a = b.
+  Remark cliques_at_most_one_elt (α : clique) a b :
+    a ⊨ α -> b ⊨ α -> a = b.
   Proof. apply (members_are_coh α). Qed.
   
-  Corollary mem_is_sgl α a : a ⊨ α <-> α ≃ sgl a.
+  Corollary mem_is_sgl (α : clique) a : a ⊨ α <-> α ≃ sgl a.
   Proof.
     split;[|intros e;apply e,sgl_spec;reflexivity].
-    intros h1 b.
-    unfold satisfies,satClique at 1;simpl.
-    unfold satClique.
+    intros h1 b.    
+    (* unfold satisfies,satClique at 1;simpl. *)
+    (* unfold satClique. *)
     rewrite (sgl_spec b a).
     split.
     - intros h2;eapply cliques_at_most_one_elt;assumption.
@@ -351,9 +351,10 @@ Section s.
       + destruct_eqX u (@nil V).
         * simpl;tauto.
         * intros h1 h2.
-          cut (@satisfies _ _ satObs_SatRel (sgl a) (⦑a⦒→⊥o)).
+          (* cut (sgl a ⊨ (⦑a⦒→⊥o)). *)
+          cut (@satisfies _ _ satObs (sgl a) (⦑a⦒→⊥o)).
           -- rsimpl;intros f.
-             cut (@satisfies _ _ satObs_SatRel (sgl a) ⊥o).
+             cut (@satisfies _ _ satObs (sgl a) ⊥o).
              ++ rsimpl;tauto.
              ++ apply f;[simpl;apply sgl_spec|];reflexivity.
           -- rewrite satisfies_Meet in h1.

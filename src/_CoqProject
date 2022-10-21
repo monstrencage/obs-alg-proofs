@@ -7,7 +7,7 @@ decidable_prop.v
 list_dec.v
 
 # graphs and cliques
-coherence_graph_ne.v
+coherence_graph.v
 
 # syntax of observations
 syntax_obs.v

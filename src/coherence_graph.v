@@ -31,15 +31,14 @@ Section s.
 
   Class clique : Set :=
     {
-      member : vertex -> bool;
-      incompat : vertex -> option vertex;
-      members_are_coh :
+    member : vertex -> bool;
+    incompat : vertex -> option vertex;
+    members_are_coh :
       forall a b, Is_true (member a) -> Is_true (member b) -> a ⁐ b;
-      incompat_Some :
+    incompat_Some :
       forall a b, incompat a = Some b -> Is_true (member b) /\ a ⌣ b;
-      incompat_None :
-      forall a b, incompat a = None -> Is_true (member b) -> a ⁐ b;
-      non_empty : exists a : vertex, member a = true    
+    incompat_None :
+      forall a b, incompat a = None -> Is_true (member b) -> a ⁐ b
     }.
 
   Arguments member α a : rename, clear implicits. 
@@ -147,21 +146,21 @@ Section s.
       exists a,b;(split;[apply hx|split;[apply hy|]]);assumption.
   Qed.
 
-  (* (** The empty clique *) *)
-  (* Definition empt : clique. *)
-  (* Proof. *)
-  (*   exists (fun _ => false) (fun _ => None). *)
-  (*   - intros a b h;simpl in h;exfalso;exact h. *)
-  (*   - discriminate. *)
-  (*   - unfold Is_true;tauto.  *)
-  (* Defined. *)
+  (** The empty clique *)
+  Definition empt : clique.
+  Proof.
+    exists (fun _ => false) (fun _ => None).
+    - intros a b h;simpl in h;exfalso;exact h.
+    - discriminate.
+    - unfold Is_true;tauto. 
+  Defined.
   
-  (* Lemma empt_spec a : ~ a ⊨ empt. *)
-  (* Proof. simpl;tauto. Qed. *)
-  (* Opaque empt. *)
+  Lemma empt_spec a : ~ a ⊨ empt.
+  Proof. simpl;tauto. Qed.
+  Opaque empt.
 
-  (* Remark empt_max x : x ⊃ empt. *)
-  (* Proof. intros a h;exfalso;apply (@empt_spec a h). Qed. *)
+  Remark empt_max x : x ⊃ empt.
+  Proof. intros a h;exfalso;apply (@empt_spec a h). Qed.
 
   (** Union of cliques *)
   Definition joins (x y z : clique) :=
@@ -222,11 +221,10 @@ Section decidable_graph.
                           end).
       assert
         ((forall a b, Is_true (memz a) -> Is_true (memz b) -> a ⁐ b)
-         /\ ((forall a b, incompatz a = Some b -> Is_true (memz b) /\ a ⌣ b)
+         /\ (forall a b, incompatz a = Some b -> Is_true (memz b) /\ a ⌣ b)
          /\ (forall a b,incompatz a = None -> Is_true (memz b)  -> a ⁐ b))
-         /\ (exists a, memz a = true))
-        as (memok&(iS&iN)&ne).
-      + split;[|split].
+        as (memok&iS&iN).
+      + split.
         * intros a b;unfold memz;clear memz;
             repeat rewrite orb_prop_iff;intros [ha|ha] [hb|hb].
           -- now apply (members_are_coh x).
@@ -246,9 +244,7 @@ Section decidable_graph.
           -- intros h1 h2 _ [h3|h3].
              ++ apply (incompat_None _ h2),h3.
              ++ apply (incompat_None _ h1),h3.
-        * destruct (@non_empty _ x) as (a&h).
-          exists a;unfold memz;rewrite h;reflexivity.
-      + set (z := Build_clique memok iS iN ne).
+      + set (z := Build_clique memok iS iN).
         exists z;intro a;unfold satisfies at 1,satClique,member;simpl;
           unfold memz.
         rewrite orb_prop_iff.
@@ -299,14 +295,9 @@ Section finite_cliques.
   Qed.
 
   Definition fcliques :=
-    { α : list vertex | test (is_coherent α /\ α <> []) = true}.
+    { α : list vertex | test (is_coherent α) = true}.
 
   Remark fcliques_coherent (α : fcliques) : is_coherent ($α).
-  Proof.
-    destruct α as (α&h);simpl.
-    rewrite test_spec in h;apply h.
-  Qed.
-  Remark fcliques_non_empty (α : fcliques) : $α <> [].
   Proof.
     destruct α as (α&h);simpl.
     rewrite test_spec in h;apply h.
@@ -365,17 +356,9 @@ Section finite_cliques.
       case_prop (a ⁐ b);tauto.
     - discriminate.
   Qed.
-  Lemma fc_ne α : exists a, fcmem α a = true.
-  Proof.
-    unfold fcmem, fcic.
-    destruct α as (l&h);simpl in *;rewrite test_spec in h.
-    destruct h as (_&h); destruct l as [|a l];[tauto|].
-    exists a;simpl;rewrite eqX_refl;reflexivity.
-  Qed.
   
   Definition fc_to_clique (α : fcliques) : clique
-    := Build_clique (@fcmem_coh α) (@fcic_Some α) (@fcic_None α)
-                    (@fc_ne α).
+    := Build_clique (@fcmem_coh α) (@fcic_Some α) (@fcic_None α).
         
   Notation " ! " := fc_to_clique.
 
@@ -484,7 +467,7 @@ Section finite_cliques.
     split;intros (h1&h2&h3);(split;[apply h1|split;[apply h2|]]);
       intros t ht1 ht2.
     - apply fc_to_clique_iff,h3;apply fc_to_clique_iff;assumption.
-    - cut (is_coherent ($x ++ $y) /\ (($x++$y)<>[]));[|split].
+    - cut (is_coherent ($x ++ $y)).
       + intro c;apply test_spec in c.
         replace ($ x ++ $y) with ($(exist _ ($x++$y) c:fcliques))
           by reflexivity.
@@ -501,8 +484,6 @@ Section finite_cliques.
         apply (fcliques_coherent z).
         * destruct ha as [ha|ha];apply h1,ha||apply h2,ha.
         * destruct hb as [hb|hb];apply h1,hb||apply h2,hb.
-      + case_eq ($x);[|intros;simpl;discriminate].
-        intros f _;revert f;apply fcliques_non_empty. 
   Qed.
   
   Lemma not_incompatible_is_joins_f x y :
@@ -510,7 +491,7 @@ Section finite_cliques.
   Proof.
     unfold fjoins;split.
     - intro F.
-      cut (is_coherent ($x ++ $y) /\ (($x++$y)<>[]));[|split].
+      cut (is_coherent ($x ++ $y)).
       + intro c;apply test_spec in c;exists (exist _ ($x ++ $y) c);
           reflexivity.
       + intros a b h1 h2.
@@ -526,8 +507,6 @@ Section finite_cliques.
           repeat split;auto.
           symmetry;assumption.
         * apply hyp,(fcliques_coherent y a b);assumption.
-      + case_eq ($x);[|intros;simpl;discriminate].
-        intros f _;revert f;apply fcliques_non_empty. 
     - intros (z&Ez) (a&b&ha&hb&i);simpl in *.
       apply i,(fcliques_coherent z a b);assumption||(apply Ez,in_app_iff);
         tauto.
@@ -555,65 +534,65 @@ Section finite_cliques.
       apply incompat_are_incoh; exists a;split;[|symmetry];assumption.
   Qed.
 
-  (* (** Projections *) *)
+  (** Projections *)
 
-  (* Definition project_list : list vertex -> clique -> list vertex := *)
-  (*   fun l x => member x :> l. *)
+  Definition project_list : list vertex -> clique -> list vertex :=
+    fun l x => member x :> l.
 
-  (* Lemma is_coherent_project_list l x : is_coherent (project_list l x). *)
-  (* Proof. *)
-  (*   unfold project_list;intros a b;repeat rewrite filter_In. *)
-  (*   repeat rewrite <- Is_true_iff_eq_true. *)
-  (*   intros;apply (members_are_coh x);tauto. *)
-  (* Qed. *)
-  (* Lemma project_proof l x : test (is_coherent (project_list l x)) = true. *)
-  (* Proof. apply test_spec,is_coherent_project_list. Qed. *)
+  Lemma is_coherent_project_list l x : is_coherent (project_list l x).
+  Proof.
+    unfold project_list;intros a b;repeat rewrite filter_In.
+    repeat rewrite <- Is_true_iff_eq_true.
+    intros;apply (members_are_coh x);tauto.
+  Qed.
+  Lemma project_proof l x : test (is_coherent (project_list l x)) = true.
+  Proof. apply test_spec,is_coherent_project_list. Qed.
   
-  (* Definition project l (x : clique) : fcliques := *)
-  (*   exist _ (project_list l x) (project_proof l x). *)
+  Definition project l (x : clique) : fcliques :=
+    exist _ (project_list l x) (project_proof l x).
 
-  (* Infix " @@ " := project (at level 20). *)
+  Infix " @@ " := project (at level 20).
 
-  (* Lemma project_spec a l x : a ∈ $ (l@@x) <-> a ⊨ x /\ a ∈ l. *)
-  (* Proof. *)
-  (*   unfold project,project_list,satisfies,satClique;simpl. *)
-  (*   rewrite filter_In,Is_true_iff_eq_true;tauto. *)
-  (* Qed. *)
+  Lemma project_spec a l x : a ∈ $ (l@@x) <-> a ⊨ x /\ a ∈ l.
+  Proof.
+    unfold project,project_list,satisfies,satClique;simpl.
+    rewrite filter_In,Is_true_iff_eq_true;tauto.
+  Qed.
   
-  (* Lemma project_incl l x : $ (l @@ x) ⊆ l. *)
-  (* Proof. intros a;rewrite project_spec;tauto. Qed. *)
+  Lemma project_incl l x : $ (l @@ x) ⊆ l.
+  Proof. intros a;rewrite project_spec;tauto. Qed.
          
-  (* Lemma project_larger l x : x ⊃ ! (l @@ x). *)
-  (* Proof. intro a;simpl_fc;rewrite project_spec;tauto. Qed. *)
+  Lemma project_larger l x : x ⊃ ! (l @@ x).
+  Proof. intro a;simpl_fc;rewrite project_spec;tauto. Qed.
 
-  (* Lemma project_max l x α : $ α ⊆ l -> x ⊃ ! α -> l @@ x ⊃f α. *)
-  (* Proof. *)
-  (*   intros h1 h2 a h3;apply project_spec. *)
-  (*   split;[apply h2;simpl_fc|apply h1];tauto. *)
-  (* Qed. *)
+  Lemma project_max l x α : $ α ⊆ l -> x ⊃ ! α -> l @@ x ⊃f α.
+  Proof.
+    intros h1 h2 a h3;apply project_spec.
+    split;[apply h2;simpl_fc|apply h1];tauto.
+  Qed.
 
-  (* Lemma project_project l m α : *)
-  (*   $(l @@ !(m @@ α)) ≈ $((l∩m) @@ α). *)
-  (* Proof. *)
-  (*   intros a;repeat rewrite project_spec||rewrite fc_to_clique_spec. *)
-  (*   rewrite intersect_spec;tauto. *)
-  (* Qed. *)
+  Lemma project_project l m α :
+    $(l @@ !(m @@ α)) ≈ $((l∩m) @@ α).
+  Proof.
+    intros a;repeat rewrite project_spec||rewrite fc_to_clique_spec.
+    rewrite intersect_spec;tauto.
+  Qed.
 
-  (* Global Instance project_proper : *)
-  (*   Proper (@equivalent _ ==> sequiv ==> eq_fcliques) project. *)
-  (* Proof. *)
-  (*   intros l1 l2 el α1 α2 eα a. *)
-  (*   repeat rewrite project_spec||rewrite fc_to_clique_spec. *)
-  (*   rewrite el,(eα a);reflexivity. *)
-  (* Qed. *)
+  Global Instance project_proper :
+    Proper (@equivalent _ ==> sequiv ==> eq_fcliques) project.
+  Proof.
+    intros l1 l2 el α1 α2 eα a.
+    repeat rewrite project_spec||rewrite fc_to_clique_spec.
+    rewrite el,(eα a);reflexivity.
+  Qed.
 
-  (* Global Instance project_proper_inf : *)
-  (*   Proper (Basics.flip(@incl _) ==> inf_cliques ==> inf_fcliques) project. *)
-  (* Proof. *)
-  (*   intros l1 l2 el α1 α2 eα a. *)
-  (*   repeat rewrite project_spec||rewrite fc_to_clique_spec. *)
-  (*   intros(h1&h2);split;[apply eα|apply el];assumption. *)
-  (* Qed. *)
+  Global Instance project_proper_inf :
+    Proper (Basics.flip(@incl _) ==> inf_cliques ==> inf_fcliques) project.
+  Proof.
+    intros l1 l2 el α1 α2 eα a.
+    repeat rewrite project_spec||rewrite fc_to_clique_spec.
+    intros(h1&h2);split;[apply eα|apply el];assumption.
+  Qed.
   
   (** Singleton cliques *)
 
@@ -622,11 +601,9 @@ Section finite_cliques.
     intros x y [<-|F] [<-|F'];simpl in *;
       reflexivity||tauto.
   Qed.
-  
-  Remark sglf_proof a : test (is_coherent [a] /\ [a]<>[]) = true.
-  Proof.
-    apply test_spec;split;[apply singleton_is_coherent|discriminate].
-  Qed.
+
+  Remark sglf_proof a : test (is_coherent [a]) = true.
+  Proof. apply test_spec,singleton_is_coherent. Qed.
   
   Definition sgl__f a : fcliques := (exist _ [a] (sglf_proof a)).
 
@@ -640,7 +617,7 @@ Arguments fcliques_coherent : clear implicits.
 Arguments fcliques_coherent {G} {decG}.
 Ltac simpl_fc := repeat rewrite fc_to_clique_spec in *.
 Notation " ! " := fc_to_clique.
-(* Infix " @@ " := project (at level 20). *)
+Infix " @@ " := project (at level 20).
 Infix " ↯↯ " := fincompatible (at level 50).
 Notation sgl := (fun a : vertex => !(sgl__f a) : clique).
 Notation inf_fcliques := (fun a b : fcliques => $ b ⊆ $ a).

@@ -3,7 +3,7 @@ Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 
 Require Import notations List.
-Require Export coherence_graph_ne.
+Require Export coherence_graph.
 
 (** * Syntax for observations *)
 Inductive observation {G : Graph} :=

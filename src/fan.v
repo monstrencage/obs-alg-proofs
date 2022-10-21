@@ -76,7 +76,87 @@ Section s.
         apply I,(members_are_coh y a b);assumption.
   Qed. 
 
+  Definition join__f (p : fcliques*fcliques) :
+    { l : list fcliques |  FAN ⊢ ⋁ (map π l) ≡ π (fst p) ⟑ π(snd p) }.
+    case_eq (test(is_coherent ($(fst p)++$(snd p)))).
+    - intros ic;exists [exist _ _ ic : fcliques].
+      simpl;rewrite eo_or_bot.
+      unfold π;simpl.
+      rewrite map_app,Meet_app;reflexivity.
+    - intros ic;exists [].
+      simpl;symmetry;apply eo_eq_bot_iff_inf_bot.
+      apply not_true_iff_false in ic.
+      rewrite test_spec in ic.
+      destruct p as [x y];simpl in *.
+      case_prop (exists a b, a ∈ $x /\ b ∈ $ y /\ a ⌣ b).
+      + destruct hyp as (a&b&h1&h2&h3).
+        transitivity (⦑a⦒⟑⦑b⦒).
+        * apply o_and_inf;apply eo_inf_in_Meet,in_map_iff;eexists;eauto.
+        * rewrite <- eo_eq_bot_iff_inf_bot.
+          apply FAN_Obs,eo_ax,jright,jleft,obs_incoh,h3.
+      + exfalso;apply ic.
+        intros a b h1 h2.
+        apply in_app_iff in h1,h2.
+        destruct h1 as [h1|h1], h2 as [h2|h2];
+          (eapply fcliques_coherent;eassumption)
+          ||(case_prop (a ⁐ b);
+            [assumption
+            |exfalso;apply hyp;eexists;eexists;repeat split;eauto]).
+        symmetry;apply hyp0.
+  Defined.
   
+  Fixpoint Conj (L : list (list fcliques)) : list fcliques :=
+    match L with
+    | [] => [[]@@empt]
+    | l::L => flat_map (fun p => $ (join__f p)) (pairs l (Conj L))
+    end.
+
+  Lemma Conj_spec L :
+    FAN ⊢ ⋀ (map (fun l => ⋁ (map π l)) L) ≡ ⋁ (map π (Conj L)).
+  Proof.
+    induction L as [|l L];simpl.
+    - symmetry;apply eo_or_bot.
+    - rewrite IHL.
+      rewrite Join_and_Join.
+      rewrite flat_map_concat_map.
+      rewrite concat_map,map_map.
+      rewrite <-flat_map_concat_map.
+      rewrite flat_map_Join,map_map.
+      split_order.
+      + unfold__lat;destruct a as (a1&a2);apply pairs_spec in ha
+            as (ha1&ha2).
+        apply in_map_iff in ha1 as (s&<-&hs).
+        apply in_map_iff in ha2 as (t&<-&ht);simpl.
+        transitivity (⋁ (map π ($ (join__f (s,t))))).
+        * destruct (join__f (s,t)) as (x&hx);simpl.
+          apply eq_obs_inf_obs;symmetry;apply hx.
+        * apply eo_inf_in_Join,in_map_iff;exists (s,t);split;[reflexivity|].
+          apply pairs_spec;tauto.
+      + unfold_join.
+        destruct a as (s&t);apply pairs_spec in ha as (hs&ht).
+        destruct (join__f (s,t)) as (x&hx);simpl;rewrite hx;simpl.
+        apply eo_inf_in_Join,in_map_iff;exists (π s,π t);split;[reflexivity|].
+        apply pairs_spec;split;apply in_map_iff;eexists;eauto.
+  Qed.
+  
+  Fixpoint nf (s : observation) : list fcliques :=
+    match s with
+    | ⊤o => [[]@@empt]
+    | ⊥o => []
+    | ⦑a⦒ => [sgl__f a]
+    | s ⟇ t => nf s ++ nf t
+    | s ⟑ t => Conj [nf s;nf t]
+    | s → t =>
+        Conj (map
+                (fun x : fcliques =>
+                   (map sgl__f (flat_map an $x))
+                     ++ flat_map
+                     (fun y : fcliques =>
+                        Conj (map (fun b => [sgl__f b]) ($y − $x)))
+                     (nf t))
+                (nf s))
+    end.
+
   Lemma impl_cliques x y :
     FAN ⊢ π x → π y ≡ (π x → ⊥o) ⟇ ⋀ (map o_obs ($y − $ x)).
   Proof.
@@ -127,257 +207,54 @@ Section s.
       etransitivity;[apply eo_inf_or_right;reflexivity
                     |apply eo_inf_in_Join,in_map_iff;exists a;tauto].
   Qed.
-
-  Definition join__f (p : fcliques*fcliques) :
-    { l : list fcliques |  FAN ⊢ ⋁ (map π l) ≡ π (fst p) ⟑ π(snd p) }.
-    case_eq (test(is_coherent ($(fst p)++$(snd p))/\($(fst p)++$(snd p)<>[]))).
-    - intros ic;exists [exist _ _ ic : fcliques].
-      simpl;rewrite eo_or_bot.
-      unfold π;simpl.
-      rewrite map_app,Meet_app;reflexivity.
-    - intros ic;exists [].
-      simpl;symmetry;apply eo_eq_bot_iff_inf_bot.
-      apply not_true_iff_false in ic.
-      rewrite test_spec in ic.
-      destruct p as [x y];simpl in *.
-      case_prop (exists a b, a ∈ $x /\ b ∈ $ y /\ a ⌣ b).
-      + destruct hyp as (a&b&h1&h2&h3).
-        transitivity (⦑a⦒⟑⦑b⦒).
-        * apply o_and_inf;apply eo_inf_in_Meet,in_map_iff;eexists;eauto.
-        * rewrite <- eo_eq_bot_iff_inf_bot.
-          apply FAN_Obs,eo_ax,jright,jleft,obs_incoh,h3.
-      + exfalso;apply ic;split.
-        * intros a b h1 h2.
-          apply in_app_iff in h1,h2.
-          destruct h1 as [h1|h1], h2 as [h2|h2];
-            (eapply fcliques_coherent;eassumption)
-            ||(case_prop (a ⁐ b);
-              [assumption
-              |exfalso;apply hyp;eexists;eexists;repeat split;eauto]).
-          symmetry;apply hyp0.
-        * case_eq ($x);[|simpl;discriminate].
-          intros h _;revert h;apply fcliques_non_empty.
-  Defined.
-  
-  Definition R := option (list fcliques).
-  
-  Definition τ (l : R) : observation :=
-    match l with
-    | None => ⊤o
-    | Some l => ⋁ (map π l)
-    end.
-  
-  Fixpoint Conj (L : list (list fcliques)) : R :=
-    match L with
-    | [] => None
-    | l::L =>
-        match Conj L with
-        | None => Some l
-        | Some r => Some (flat_map (fun p => $ (join__f p)) (pairs l r))
-        end
-    end.
-
-  Lemma Conj_spec L :
-    FAN ⊢ ⋀ (map (fun l => ⋁ (map π l)) L) ≡ τ (Conj L).
+    
+  Proposition nf_spec s : FAN ⊢ ⋁ (map π (nf s)) ≡ s.
   Proof.
-    induction L as [|l L];simpl;[reflexivity|].
-    rewrite IHL;clear IHL.
-    destruct (Conj L) as [C|];clear L;simpl.
-    - rewrite Join_and_Join.
-      rewrite flat_map_concat_map.
-      rewrite concat_map,map_map.
-      rewrite <-flat_map_concat_map.
-      rewrite flat_map_Join,map_map.
-      split_order.
-      + unfold__lat;destruct a as (a1&a2);apply pairs_spec in ha
-            as (ha1&ha2).
-        apply in_map_iff in ha1 as (s&<-&hs).
-        apply in_map_iff in ha2 as (t&<-&ht);simpl.
-        transitivity (⋁ (map π ($ (join__f (s,t))))).
-        * destruct (join__f (s,t)) as (x&hx);simpl.
-          apply eq_obs_inf_obs;symmetry;apply hx.
-        * apply eo_inf_in_Join,in_map_iff;exists (s,t);split;[reflexivity|].
-          apply pairs_spec;tauto.
-      + unfold_join.
-        destruct a as (s&t);apply pairs_spec in ha as (hs&ht).
-        destruct (join__f (s,t)) as (x&hx);simpl;rewrite hx;simpl.
-        apply eo_inf_in_Join,in_map_iff;exists (π s,π t);split;[reflexivity|].
-        apply pairs_spec;split;apply in_map_iff;eexists;eauto.
-    - auto with equiv_obs.
-  Qed.
-
-  Definition orR : R -> R -> R :=
-    fun r1 r2 =>
-      match r1,r2 with
-      | None,None
-      | Some _,None
-      | None, Some _=> None
-      | Some l,Some m => Some (l++m)
-      end.
-
-  Lemma orR_spec r1 r2 : FAN ⊢ τ(orR r1 r2) ≡ τ r1 ⟇ τ r2. 
-  Proof.
-    destruct r1 as [l1|],r2 as [l2|];simpl.
-    - rewrite map_app,Join_app;auto with equiv_obs.
-    - auto with equiv_obs.
-    - transitivity (⋁ (map π l2)⟇⊤o);auto with equiv_obs.
-    - auto with equiv_obs.
-  Qed.
-
-  Definition andR : R -> R -> R :=
-    fun r1 r2 =>
-      match r1,r2 with
-      | None,None=> None
-      | Some l,None
-      | None, Some l=> Some l
-      | Some l,Some m => Conj [l;m]
-      end.
-
-  Lemma andR_spec r1 r2 : FAN ⊢ τ(andR r1 r2) ≡ τ r1 ⟑ τ r2. 
-  Proof.
-    destruct r1 as [l1|],r2 as [l2|].
-    - unfold andR;rewrite <-Conj_spec;simpl.
-      auto with equiv_obs.
-    - simpl;auto with equiv_obs.
-    - simpl;transitivity (⋁ (map π l2)⟑⊤o);auto with equiv_obs.
-    - auto with equiv_obs.
-  Qed.
-
-  Definition atR a : R := Some [sgl__f a].
-  Lemma atR_spec a : FAN ⊢ τ (atR a) ≡ ⦑a⦒.
-  Proof. simpl;rewrite var_clique;auto with equiv_obs. Qed.
-
-  Definition neg_clique_R (x : fcliques) : R :=
-    Some (map sgl__f (flat_map an $x)).
-
-  Lemma neg_clique_R_spec x :
-    FAN ⊢ τ (neg_clique_R x) ≡ π x → ⊥o.
-  Proof.
-    rewrite eo_fan_clique_neg;simpl.
-    rewrite map_map.
-    apply Join_map_equiv_pointwise.
-    intros a ha.
-    apply var_clique.
-  Qed.
-   (* (π x → ⊥o) ⟇ ⋁ (map (fun y => ⋀ (map o_obs ($y − $ x))) l) *)
-
-  Definition implClique (x : fcliques) (y : R) : R :=
-    match y with
-    | None => None
-    | Some yl =>
-        orR (neg_clique_R x)
-            (fold_right orR (Some [])
-                        (map (fun y => fold_right andR None
-                                               (map atR ($y−$x)))
-                             yl))
-    end.
-
-  Lemma τ_Join l :
-    FAN ⊢ τ (fold_right orR (Some []) l) ≡ ⋁ (map τ l).
-  Proof. induction l;simpl;[|rewrite orR_spec,IHl];reflexivity. Qed.
-
-  Lemma τ_Meet l :
-    FAN ⊢ τ (fold_right andR None l) ≡ ⋀ (map τ l).
-  Proof. induction l;simpl;[|rewrite andR_spec,IHl];reflexivity. Qed.
-  
-  Lemma implClique_spec x y :
-    FAN ⊢ τ(implClique x y) ≡ π x→τ y.
-  Proof.
-    destruct y as [yl|].
-    - transitivity (τ( orR (neg_clique_R x)
-            (fold_right orR (Some [])
-                        (map (fun y => fold_right andR None
-                                               (map atR ($y−$x)))
-                             yl))));[reflexivity|].
-      rewrite orR_spec.
-      unfold τ at 3; rewrite impl_disj_cliques.
-      apply eo_or;[apply neg_clique_R_spec|].
-      rewrite τ_Join,map_map.
-      apply Join_map_equiv_pointwise.
-      intros y hy.
-      rewrite τ_Meet,map_map.
-      apply Meet_map_equiv_pointwise.
-      intros a ha.
-      apply atR_spec.
-    - simpl.
-      symmetry;apply eo_eq_top_iff_top_inf,eo_heyting,eo_inf_top.
-  Qed.
-
-  Definition implR (x y : R) : R :=
-    match x with
-    | None => y
-    | Some l => fold_right andR None (map (fun a => implClique a y) l)
-    end.
-
-  Lemma implR_spec x y : FAN ⊢ τ(implR x y) ≡ τ x→τ y.
-  Proof.
-    destruct x.
-    - simpl;rewrite τ_Meet,map_map.
+    induction s.
+    - apply eo_or_bot.
+    - reflexivity.
+    - simpl;rewrite var_clique;apply eo_or_bot.
+    - simpl;rewrite map_app,Join_app,IHs1,IHs2;reflexivity.
+    - etransitivity;[symmetry;simpl;apply (Conj_spec [nf s1;nf s2])|].
+      simpl;rewrite eo_and_top,IHs1,IHs2;reflexivity.
+    - rewrite <- IHs1,<- IHs2 at 2;simpl.
+      generalize (nf s1),(nf s2);clear s1 s2 IHs1 IHs2;intros l m.
+      etransitivity;[symmetry;simpl;apply Conj_spec|].
+      repeat rewrite map_map.
       rewrite eo_impl_Join,map_map.
-      apply Meet_map_equiv_pointwise.
-      intros f hf.
-      apply implClique_spec.
-    - simpl.
-      rewrite eo_top_impl;reflexivity.
-  Qed.
-      
-  Fixpoint nf (s : observation) : R :=
-    match s with
-    | ⊤o => None
-    | ⊥o => Some []
-    | ⦑a⦒ => atR a
-    | s ⟇ t => orR (nf s) (nf t)
-    | s ⟑ t => andR (nf s) (nf t)
-    | s → t => implR (nf s) (nf t)
-    end.
-
-  Proposition nf_spec s : FAN ⊢ τ (nf s) ≡ s.
-  Proof.
-    induction s;auto with equiv_obs.
-    - simpl;rewrite <- atR_spec;reflexivity.
-    - simpl;rewrite orR_spec, IHs1,IHs2;reflexivity.
-    - simpl;rewrite andR_spec, IHs1,IHs2;reflexivity.
-    - simpl;rewrite implR_spec, IHs1,IHs2;reflexivity.
+      apply Meet_map_equiv_pointwise;intros x _;clear l.
+      rewrite impl_disj_cliques.
+      rewrite eo_fan_clique_neg.
+      rewrite map_app,Join_app.
+      apply eo_or.
+      + rewrite map_map.
+        apply Join_map_equiv_pointwise;intros;apply var_clique.
+      + repeat rewrite flat_map_concat_map;
+          repeat rewrite concat_map||rewrite map_map.
+        rewrite <- flat_map_concat_map,flat_map_Join,map_map.
+        apply Join_map_equiv_pointwise;intros y _.
+        rewrite <- Conj_spec,map_map.
+        apply Meet_map_equiv_pointwise;intros z _.
+        simpl;rewrite eo_or_bot;apply var_clique.
   Qed.
 
   Theorem eo_inf_complete :
-    (forall l, exists a : vertex, ~ a ∈ l) ->
     forall s t : observation, s ≲ t <-> FAN ⊢ s ≦ t .
   Proof.
-    intro h__inf;intros s t;split.
+    intros s t;split.
     - pose proof (nf_spec s) as es;pose proof (nf_spec t) as et.
       rewrite <- es,<- et at 2.
       apply (eo_sound FAN_sound) in es,et.
       rewrite <- es,<- et at 1.
-      generalize (nf s) (nf t);clear s t es et;intros s t.
-      destruct t as [m|];simpl;[|intros;apply eo_inf_top].
-      destruct s as [l|];simpl.
-      + intros h;unfold__lat.
-        cut (! a ⊨ (⋁ (map π l))).
-        * intros h';apply h in h'.
-          apply satisfies_Join in h' as (x&h'&hx).
-          apply in_map_iff in h' as (y&<-&hy).
-          eapply π_spec,fc_to_clique_iff,π_proper in hx as ->.
-          apply eo_inf_in_Join,in_map_iff;exists y;tauto.
-        * apply satisfies_Join;eexists;split;[apply in_map_iff;exists a|];
-            eauto.
-          apply π_spec;reflexivity.
-      + intro f;exfalso.
-        destruct (h__inf (flat_map (fun x => $x) m)) as (a&ha);
-          apply ha;clear ha.
-        cut (sgl a ⊨ (⋁ (map π m))).
-        * intro h.
-          apply satisfies_Join in h as (b&h1&h2).
-          apply in_map_iff in h1 as (x&<-&h1).
-          apply π_spec in h2.
-          unfold ssmaller in h2.
-          setoid_rewrite sgl_spec in h2.
-          apply in_flat_map;exists x;split;[assumption|].
-          pose proof (@fcliques_non_empty _ _ x) as ne_x.
-          case_eq ($x);[tauto|].
-          intros b ? e;subst;left;apply h2;simpl.
-          apply fc_to_clique_spec;rewrite e;now left.
-        * apply f,sat_top;tauto.
+      intros h;unfold__lat.
+      cut (! a ⊨ (⋁ (map π (nf s)))).
+      + intros h';apply h in h'.
+        apply satisfies_Join in h' as (x&h'&hx).
+        apply in_map_iff in h' as (y&<-&hy).
+        eapply π_spec,fc_to_clique_iff,π_proper in hx as ->.
+        apply eo_inf_in_Join,in_map_iff;exists y;tauto.
+      + apply satisfies_Join;eexists;split;[apply in_map_iff;exists a|];eauto.
+        apply π_spec;reflexivity.
     - intros h;apply (eo_sound FAN_sound) in h as <-.
       intro;rsimpl;tauto.
   Qed.

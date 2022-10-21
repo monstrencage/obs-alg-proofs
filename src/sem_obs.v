@@ -107,21 +107,21 @@ Section s.
       apply h;simpl_fc;assumption.
   Qed.
 
-  (** The problems of 1) satifiability for finite cliques 2) semantic containment of a pair of terms 3) semantic equivalence of a pair of terms are all equi-decidable. NOT ANYMORE*)
-  (* Remark dec_fsat_impl_dec_ssmaller : *)
-  (*   (forall α s, DecidableProp (!α ⊨ s)) -> forall s t, DecidableProp ( s ≲ t ). *)
-  (* Proof. *)
-  (*   intros hdec s t. *)
-  (*   assert (ic : test (is_coherent []) = true) *)
-  (*     by (now apply test_spec;intro;simpl). *)
-  (*   case_prop (! (exist _ [] ic) ⊨ (s→t));[left|right]. *)
-  (*   - intros α hα. *)
-  (*     rsimpl in *. *)
-  (*     apply hyp;[assumption|]. *)
-  (*     intro a;rewrite fc_to_clique_spec;simpl;tauto. *)
-  (*   - intros h;apply hyp;clear hyp. *)
-  (*     rsimpl;intros α hα _;apply h,hα. *)
-  (* Qed. *)
+  (** The problems of 1) satifiability for finite cliques 2) semantic containment of a pair of terms 3) semantic equivalence of a pair of terms are all equi-decidable. *)
+  Remark dec_fsat_impl_dec_ssmaller :
+    (forall α s, DecidableProp (!α ⊨ s)) -> forall s t, DecidableProp ( s ≲ t ).
+  Proof.
+    intros hdec s t.
+    assert (ic : test (is_coherent []) = true)
+      by (now apply test_spec;intro;simpl).
+    case_prop (! (exist _ [] ic) ⊨ (s→t));[left|right].
+    - intros α hα.
+      rsimpl in *.
+      apply hyp;[assumption|].
+      intro a;rewrite fc_to_clique_spec;simpl;tauto.
+    - intros h;apply hyp;clear hyp.
+      rsimpl;intros α hα _;apply h,hα.
+  Qed.
   Remark dec_ssmaller_impl_dec_fsat :
     (forall s t, DecidableProp ( s ≲ t )) -> (forall α s, DecidableProp (!α ⊨ s)).
   Proof.
