@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>Obs.notations</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library Obs.notations</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Export</span> <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Logic.Eqdep.html#"><span class="id" title="library">Eqdep</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Setoids.Setoid.html#"><span class="id" title="library">Setoid</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Classes.Morphisms.html#"><span class="id" title="library">Morphisms</span></a>.<br/>
+<span class="id" title="keyword">Set Implicit Arguments</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> <a id="4b47a3b005e65733dc7e6b4fd80223a0" class="idref" href="#4b47a3b005e65733dc7e6b4fd80223a0"><span class="id" title="notation">&quot;</span></a> $ o " := (<a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Init.Specif.html#proj1_sig"><span class="id" title="definition">proj1_sig</span></a> <span class="id" title="var">o</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 0).<br/>
+<span class="id" title="keyword">Infix</span> <a id="c90061783c20674b3a3a6b46d343da03" class="idref" href="#c90061783c20674b3a3a6b46d343da03"><span class="id" title="notation">&quot;</span></a> ∘ " := <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Program.Basics.html#compose"><span class="id" title="definition">Basics.compose</span></a> (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 40).<br/>
+<span class="id" title="keyword">Infix</span> <a id="01ae72697b6463048fd30157e6b26bfb" class="idref" href="#01ae72697b6463048fd30157e6b26bfb"><span class="id" title="notation">&quot;</span></a> ⊕ " := <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Init.Nat.html#max"><span class="id" title="definition">Nat.max</span></a> (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 40).<br/>
+
+<br/>
+<span class="id" title="keyword">Create HintDb</span> <span class="id" title="var">simpl_typeclasses</span>.<br/>
+<span class="id" title="keyword">Ltac</span> <span class="id" title="var">rsimpl</span> := <span class="id" title="tactic">repeat</span> <span class="id" title="tactic">autorewrite</span> <span class="id" title="keyword">with</span> <span class="id" title="var">simpl_typeclasses</span>||<span class="id" title="tactic">simpl</span>.<br/>
+<span class="id" title="keyword">Tactic Notation</span> "rsimpl" "in" <span class="id" title="var">hyp</span>(<span class="id" title="var">h</span>) :=<br/>
+&nbsp;&nbsp;(<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">autorewrite</span> <span class="id" title="keyword">with</span> <span class="id" title="var">simpl_typeclasses</span> <span class="id" title="tactic">in</span> <span class="id" title="var">h</span>||<span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">h</span>).<br/>
+<span class="id" title="keyword">Tactic Notation</span> "rsimpl" "in" "*" :=<br/>
+&nbsp;&nbsp;(<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">autorewrite</span> <span class="id" title="keyword">with</span> <span class="id" title="var">simpl_typeclasses</span> <span class="id" title="tactic">in</span> × ||<span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> × ).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Typeclass and notation for size functions. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Class</span> <a id="Size" class="idref" href="#Size"><span class="id" title="record">Size</span></a> (<a id="A:1" class="idref" href="#A:1"><span class="id" title="binder">A</span></a> : <span class="id" title="keyword">Type</span>) := <a id="size" class="idref" href="#size"><span class="id" title="projection">size</span></a> : <a class="idref" href="Obs.notations.html#A:1"><span class="id" title="variable">A</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">→</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Init.Datatypes.html#nat"><span class="id" title="inductive">nat</span></a>.<br/>
+<span class="id" title="keyword">Notation</span> <a id="d33c7b40f4718e530e0494ae127cd73e" class="idref" href="#d33c7b40f4718e530e0494ae127cd73e"><span class="id" title="notation">&quot;</span></a> ⎢ x ⎥ " := (<a class="idref" href="Obs.notations.html#size"><span class="id" title="definition">size</span></a> <span class="id" title="var">x</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+A partial order is a subrelation of its equivalence relation.  
+</div>
+<div class="code">
+<span class="id" title="keyword">Global Instance</span> <a id="PartialOrder_subrelation" class="idref" href="#PartialOrder_subrelation"><span class="id" title="instance">PartialOrder_subrelation</span></a> {<a id="X:4" class="idref" href="#X:4"><span class="id" title="binder">X</span></a> <a id="e:5" class="idref" href="#e:5"><span class="id" title="binder">e</span></a> <a id="o:6" class="idref" href="#o:6"><span class="id" title="binder">o</span></a>} `{<a id="H:9" class="idref" href="#H:9"><span class="id" title="binder">PartialOrder</span></a> <a id="H:9" class="idref" href="#H:9"><span class="id" title="binder">X</span></a> <a id="H:9" class="idref" href="#H:9"><span class="id" title="binder">e</span></a> <a id="H:9" class="idref" href="#H:9"><span class="id" title="binder">o</span></a>} :<br/>
+&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Classes.RelationClasses.html#subrelation"><span class="id" title="class">subrelation</span></a> <a class="idref" href="Obs.notations.html#e:5"><span class="id" title="variable">e</span></a> <a class="idref" href="Obs.notations.html#o:6"><span class="id" title="variable">o</span></a>.<br/>
+ 
+<br/>
+</div>
+
+<div class="doc">
+Typeclass and notation for satisfaction relations. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Class</span> <a id="Satisfaction" class="idref" href="#Satisfaction"><span class="id" title="record">Satisfaction</span></a> (<a id="A:10" class="idref" href="#A:10"><span class="id" title="binder">A</span></a> <a id="B:11" class="idref" href="#B:11"><span class="id" title="binder">B</span></a> : <span class="id" title="keyword">Type</span>) := <a id="satisfies" class="idref" href="#satisfies"><span class="id" title="projection">satisfies</span></a> : <a class="idref" href="Obs.notations.html#A:10"><span class="id" title="variable">A</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">→</span></a> <a class="idref" href="Obs.notations.html#B:11"><span class="id" title="variable">B</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">→</span></a> <span class="id" title="keyword">Prop</span>.<br/>
+<span class="id" title="keyword">Infix</span> <a id="d50aa3cc3a68361fcdb685523acf6731" class="idref" href="#d50aa3cc3a68361fcdb685523acf6731"><span class="id" title="notation">&quot;</span></a> ⊨ " := <a class="idref" href="Obs.notations.html#satisfies"><span class="id" title="definition">satisfies</span></a> (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 10).<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="SemEquiv" class="idref" href="#SemEquiv"><span class="id" title="section">SemEquiv</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="A:14" class="idref" href="#A:14"><span class="id" title="binder">A</span></a> <a id="B:15" class="idref" href="#B:15"><span class="id" title="binder">B</span></a> : <span class="id" title="keyword">Type</span>}.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="sat:16" class="idref" href="#sat:16"><span class="id" title="binder">sat</span></a> : <a class="idref" href="Obs.notations.html#Satisfaction"><span class="id" title="class">Satisfaction</span></a> <a class="idref" href="Obs.notations.html#SemEquiv.B"><span class="id" title="variable">B</span></a> <a class="idref" href="Obs.notations.html#SemEquiv.A"><span class="id" title="variable">A</span></a>}.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Semantic equivalence derived from satisfaction relation. 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="sequiv" class="idref" href="#sequiv"><span class="id" title="definition">sequiv</span></a>: <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Relations.Relation_Definitions.html#relation"><span class="id" title="definition">relation</span></a> <a class="idref" href="Obs.notations.html#SemEquiv.A"><span class="id" title="variable">A</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">fun</span> <a id="a:17" class="idref" href="#a:17"><span class="id" title="binder">a</span></a> <a id="b:18" class="idref" href="#b:18"><span class="id" title="binder">b</span></a> : <a class="idref" href="Obs.notations.html#SemEquiv.A"><span class="id" title="variable">A</span></a> ⇒ <span class="id" title="keyword">∀</span> <a id="c:19" class="idref" href="#c:19"><span class="id" title="binder">c</span></a> : <a class="idref" href="Obs.notations.html#SemEquiv.B"><span class="id" title="variable">B</span></a>, <a class="idref" href="Obs.notations.html#c:19"><span class="id" title="variable">c</span></a> <a class="idref" href="Obs.notations.html#d50aa3cc3a68361fcdb685523acf6731"><span class="id" title="notation">⊨</span></a> <a class="idref" href="Obs.notations.html#a:17"><span class="id" title="variable">a</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'&lt;-&gt;'_x"><span class="id" title="notation">↔</span></a> <a class="idref" href="Obs.notations.html#c:19"><span class="id" title="variable">c</span></a> <a class="idref" href="Obs.notations.html#d50aa3cc3a68361fcdb685523acf6731"><span class="id" title="notation">⊨</span></a> <a class="idref" href="Obs.notations.html#b:18"><span class="id" title="variable">b</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Notation</span> <a id="5d21ad66d64d0d4ca8c83b997f4d6bae" class="idref" href="#5d21ad66d64d0d4ca8c83b997f4d6bae"><span class="id" title="notation">&quot;</span></a> e ≃ f " := (<a class="idref" href="Obs.notations.html#sequiv"><span class="id" title="definition">sequiv</span></a> <span class="id" title="var">e</span> <span class="id" title="var">f</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Global Instance</span> <a id="sequiv_Equiv" class="idref" href="#sequiv_Equiv"><span class="id" title="instance">sequiv_Equiv</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Classes.RelationClasses.html#Equivalence"><span class="id" title="class">Equivalence</span></a> <a class="idref" href="Obs.notations.html#sequiv"><span class="id" title="definition">sequiv</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Semantic order relation derived from satisfaction relation. 
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="ssmaller" class="idref" href="#ssmaller"><span class="id" title="definition">ssmaller</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Relations.Relation_Definitions.html#relation"><span class="id" title="definition">relation</span></a> <a class="idref" href="Obs.notations.html#SemEquiv.A"><span class="id" title="variable">A</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="keyword">fun</span> <a id="a:20" class="idref" href="#a:20"><span class="id" title="binder">a</span></a> <a id="b:21" class="idref" href="#b:21"><span class="id" title="binder">b</span></a> ⇒ <span class="id" title="keyword">∀</span> <a id="c:22" class="idref" href="#c:22"><span class="id" title="binder">c</span></a>, <a class="idref" href="Obs.notations.html#c:22"><span class="id" title="variable">c</span></a> <a class="idref" href="Obs.notations.html#d50aa3cc3a68361fcdb685523acf6731"><span class="id" title="notation">⊨</span></a> <a class="idref" href="Obs.notations.html#a:20"><span class="id" title="variable">a</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Init.Logic.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">→</span></a> <a class="idref" href="Obs.notations.html#c:22"><span class="id" title="variable">c</span></a> <a class="idref" href="Obs.notations.html#d50aa3cc3a68361fcdb685523acf6731"><span class="id" title="notation">⊨</span></a> <a class="idref" href="Obs.notations.html#b:21"><span class="id" title="variable">b</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Notation</span> <a id="dd2b2fada61dfb9f59d11f20ff38e450" class="idref" href="#dd2b2fada61dfb9f59d11f20ff38e450"><span class="id" title="notation">&quot;</span></a> e ≲ f " := (<a class="idref" href="Obs.notations.html#ssmaller"><span class="id" title="definition">ssmaller</span></a> <span class="id" title="var">e</span> <span class="id" title="var">f</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Global Instance</span> <a id="ssmaller_PreOrder" class="idref" href="#ssmaller_PreOrder"><span class="id" title="instance">ssmaller_PreOrder</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Classes.RelationClasses.html#PreOrder"><span class="id" title="class">PreOrder</span></a> <a class="idref" href="Obs.notations.html#ssmaller"><span class="id" title="definition">ssmaller</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Global Instance</span> <a id="ssmaller_PartialOrder" class="idref" href="#ssmaller_PartialOrder"><span class="id" title="instance">ssmaller_PartialOrder</span></a> : <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Classes.RelationClasses.html#PartialOrder"><span class="id" title="class">PartialOrder</span></a> <a class="idref" href="Obs.notations.html#sequiv"><span class="id" title="definition">sequiv</span></a> <a class="idref" href="Obs.notations.html#ssmaller"><span class="id" title="definition">ssmaller</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Global Instance</span> <a id="satisfies_proper" class="idref" href="#satisfies_proper"><span class="id" title="instance">satisfies_proper</span></a> <a id="b:23" class="idref" href="#b:23"><span class="id" title="binder">b</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Classes.Morphisms.html#Proper"><span class="id" title="class">Proper</span></a> (<a class="idref" href="Obs.notations.html#sequiv"><span class="id" title="definition">sequiv</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Classes.Morphisms.html#8dc5652698a6e16f72dd37bd17d3b973"><span class="id" title="notation">==&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Init.Logic.html#iff"><span class="id" title="definition">iff</span></a>) (<a class="idref" href="Obs.notations.html#satisfies"><span class="id" title="definition">satisfies</span></a> <a class="idref" href="Obs.notations.html#b:23"><span class="id" title="variable">b</span></a>).<br/>
+ 
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Global Instance</span> <a id="satisfies_inf" class="idref" href="#satisfies_inf"><span class="id" title="instance">satisfies_inf</span></a> <a id="b:24" class="idref" href="#b:24"><span class="id" title="binder">b</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Classes.Morphisms.html#Proper"><span class="id" title="class">Proper</span></a> (<a class="idref" href="Obs.notations.html#ssmaller"><span class="id" title="definition">ssmaller</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Classes.Morphisms.html#8dc5652698a6e16f72dd37bd17d3b973"><span class="id" title="notation">==&gt;</span></a> <a class="idref" href="http://coq.inria.fr/distrib/V8.15.0/stdlib//Coq.Program.Basics.html#impl"><span class="id" title="definition">Basics.impl</span></a>) (<a class="idref" href="Obs.notations.html#satisfies"><span class="id" title="definition">satisfies</span></a> <a class="idref" href="Obs.notations.html#b:24"><span class="id" title="variable">b</span></a>).<br/>
+ <span class="id" title="keyword">End</span> <a class="idref" href="Obs.notations.html#SemEquiv"><span class="id" title="section">SemEquiv</span></a>.<br/>
+<span class="id" title="keyword">Notation</span> <a id="128e0897ddd1f10a3ce0742b02fd1a18" class="idref" href="#128e0897ddd1f10a3ce0742b02fd1a18"><span class="id" title="notation">&quot;</span></a> e ≲ f " := (<a class="idref" href="Obs.notations.html#ssmaller"><span class="id" title="definition">ssmaller</span></a> <span class="id" title="var">e</span> <span class="id" title="var">f</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80).<br/>
+
+<br/>
+<span class="id" title="keyword">Notation</span> <a id="47ab0ac71cf2dac51fa901d3dcced8db" class="idref" href="#47ab0ac71cf2dac51fa901d3dcced8db"><span class="id" title="notation">&quot;</span></a> e ≃ f " := (<a class="idref" href="Obs.notations.html#sequiv"><span class="id" title="definition">sequiv</span></a> <span class="id" title="var">e</span> <span class="id" title="var">f</span>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 80).<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://coq.inria.fr/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

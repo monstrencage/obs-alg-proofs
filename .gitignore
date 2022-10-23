@@ -283,3 +283,8 @@ TSWLatexianTemp*
 *.vo
 *.vok
 *.vos
+
+
+# specific files
+.lia.cache
+.CoqMakefile.d

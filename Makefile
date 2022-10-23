@@ -16,8 +16,8 @@ invoke-coqmakefile: CoqMakefile
 
 doc: CoqMakeFile
 	cd src/; $(MAKE) -f CoqMakefile $(filter-out $(KNOWNTARGETS),$(MAKECMDGOALS)) gallinahtml
-	rm -rf doc
-	mv src/html ./doc
+	mv src/html/* ./docs/coqdoc/
+	rm -rf src/html
 
 
 .PHONY: invoke-coqmakefile $(KNOWNFILES)
