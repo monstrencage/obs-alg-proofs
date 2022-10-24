@@ -217,12 +217,13 @@ Section dec_list.
     revert m;induction l;rsimpl;intros m E ND.
     - lia.
     - cut (⎢l⎥ <= ⎢(fun x=> negb (x=?=a)) :> m⎥).
-      + intro L;eapply Lt.lt_le_S,PeanoNat.Nat.le_lt_trans;[apply L|].
+      + intro L;eapply PeanoNat.Nat.le_succ_l,PeanoNat.Nat.le_lt_trans;
+          [apply L|].
         assert (Ia : a ∈ m) by (apply E;now left);revert Ia;clear.
         induction m as [|b m];simpl;[tauto|].
         intros [->|Ia].
         * rewrite eqX_refl;rsimpl;auto.
-          apply Lt.le_lt_n_Sm,filter_length.
+          apply PeanoNat.Nat.lt_succ_r,filter_length.
         * apply IHm in Ia;destruct_eqX b a;rsimpl;lia.
       + apply NoDup_cons_iff in ND as (Ia&ND).
         apply IHl;auto.

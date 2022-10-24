@@ -348,12 +348,6 @@ Ltac destruct_leb o x :=
     |try rewrite (Compare_dec.leb_correct_conv _ _ Li) in *];
     repeat (rewrite <- plus_n_O || rewrite PeanoNat.Nat.eqb_refl).
 
-Ltac simpl_nat :=
-  repeat ((rewrite<-plus_n_O in * )
-          || (rewrite PeanoNat.Nat.sub_0_r in * )
-          ||(rewrite PeanoNat.Nat.add_sub in * )
-          ||(rewrite Minus.minus_plus in * )).
-
 Ltac simpl_words :=
   try discriminate;
   match goal with

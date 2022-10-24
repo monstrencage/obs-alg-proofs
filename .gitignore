@@ -288,3 +288,11 @@ TSWLatexianTemp*
 # specific files
 .lia.cache
 .CoqMakefile.d
+CoqMakefile
+CoqMakefile.conf
+
+# jekyll
+_site
+.sass-cache
+.jekyll-metadata
+Gemfile.lock

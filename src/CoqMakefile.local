@@ -1,2 +1,2 @@
 cleanall::
-	rm -rf ../docs/coqdoc/*
+	rm -rf ../web/coqdoc/*
