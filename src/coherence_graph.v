@@ -11,8 +11,8 @@ Class Graph :=
   { 
   vertex : Set ;
   coh : relation vertex ;
-  coh_refl :> Reflexive coh;
-  coh_sym :> Symmetric coh
+  coh_refl :: Reflexive coh;
+  coh_sym :: Symmetric coh
   }.
 
 
@@ -197,8 +197,8 @@ Infix " ⊃ " := inf_cliques (at level 20).
 (** * Decidable Graphs *)
 Class DecidableGraph G :=
   {
-    decidable_vertex :> decidable_set (@vertex G);
-    decidale_coh :> forall u v, DecidableProp (u ⁐ v)
+    decidable_vertex :: decidable_set (@vertex G);
+    decidale_coh :: forall u v, DecidableProp (u ⁐ v)
   }.
 
 Section decidable_graph.

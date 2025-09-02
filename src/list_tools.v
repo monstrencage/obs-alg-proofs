@@ -31,9 +31,9 @@ Proof. reflexivity. Qed.
 Remark SizeNil {A:Type} : ⎢@nil A⎥ = 0.
 Proof. reflexivity. Qed.
 Remark SizeApp {A:Type} (l m : list A) : ⎢l++m⎥ = ⎢l⎥+⎢m⎥.
-Proof. setoid_rewrite app_length;reflexivity. Qed.
+Proof. setoid_rewrite length_app;reflexivity. Qed.
 Remark SizeMap {A B:Type} (l : list A) (f : A -> B): ⎢map f l⎥ = ⎢l⎥.
-Proof. setoid_rewrite map_length;reflexivity. Qed.
+Proof. setoid_rewrite length_map;reflexivity. Qed.
 Global Hint Rewrite @SizeLength @SizeCons @SizeNil @SizeApp @SizeMap: simpl_typeclasses.
 
 (** ** Induction principles *)
@@ -228,16 +228,16 @@ Qed.
 
 (** If two concatenations are equal, and the first initial factor is
 smaller than the second one, we can find a unifying factor [w]. *)
-Lemma app_eq_app_length {A : Set} (u1 u2 v1 v2 : list A) :
+Lemma app_eq_length_app {A : Set} (u1 u2 v1 v2 : list A) :
   u1++u2 = v1 ++ v2 -> ⎢u1⎥ <= ⎢v1⎥ -> exists w, v1 = u1++w /\ u2 = w++v2.
 Proof.
   set (k:= ⎢v1⎥ - ⎢u1⎥ ).
   intros E L.
   assert (EL : ⎢u1 ++ u2⎥ = ⎢v1 ++ v2⎥) by (rewrite E;reflexivity).
-  repeat rewrite app_length in EL.
+  repeat rewrite length_app in EL.
   rewrite <- (firstn_skipn k u2) in E.
   rewrite <- (firstn_skipn k u2).
-  rewrite <-app_ass in E.
+  rewrite app_assoc in E.
   apply length_app in E as (E1 & E2).
   - rewrite <-E1, <-E2;eexists;eauto.
   - rsimpl in *;setoid_rewrite firstn_length_le;rsimpl;unfold k;lia.
@@ -248,9 +248,9 @@ Lemma Levi {A:Set} (u1 u2 v1 v2 : list A) :
   u1++u2 = v1++v2 -> exists w, (u1=v1++w /\ v2=w++u2) \/ (v1=u1++w /\ u2=w++v2).
 Proof.
   intro E;destruct (Compare_dec.le_lt_dec ⎢u1⎥ ⎢v1⎥ ) as [L|L].
-  - apply (app_eq_app_length E) in L as (w&->&->).
+  - apply (app_eq_length_app E) in L as (w&->&->).
     exists w;right;auto.
-  - symmetry in E;apply app_eq_app_length in E as (w&->&->);[|lia].
+  - symmetry in E;apply app_eq_length_app in E as (w&->&->);[|lia].
     exists w;left;auto.
 Qed.
 
@@ -261,11 +261,11 @@ Lemma Levi_strict {A:Set} (u1 u2 v1 v2 : list A) :
 Proof.
   intro E;destruct (Compare_dec.le_lt_dec ⎢u1⎥ ⎢v1⎥ ) as [L|L];
     [apply Compare_dec.le_lt_eq_dec in L as [L|L]|].
-  - apply app_eq_app_length in E as (w&->&->);[|lia];rsimpl in L.
+  - apply app_eq_length_app in E as (w&->&->);[|lia];rsimpl in L.
     destruct w as [|a w];[rsimpl in L;lia|].
     right;exists a,w;right;auto.
   - apply length_app in E;tauto.
-  - symmetry in E;apply app_eq_app_length in E as (w&->&->);[|lia].
+  - symmetry in E;apply app_eq_length_app in E as (w&->&->);[|lia].
     rsimpl in L;destruct w as [|a w];[rsimpl in L;lia|].
     right;exists a,w;left;auto.
 Qed.
@@ -373,7 +373,7 @@ Notation prj2 := (map snd).
 
 (** If the a projection of [l] is equal to a projection of [m], then they have the same length. *)
 Lemma proj_length {A B C} (l : list (A*B)) (m:list (B*C)) : prj2 l = prj1 m -> ⎢l⎥=⎢m⎥.
-Proof. intro E;setoid_rewrite<-(map_length snd);rewrite E;rsimpl;reflexivity. Qed.
+Proof. intro E;setoid_rewrite<-(length_map snd);rewrite E;rsimpl;reflexivity. Qed.
 
 (** *** Combine *)
 Section combine.
@@ -738,7 +738,7 @@ Proof.
   - intros _;exists a,u,[];split;auto.
   - rsimpl;intros L;destruct IHu as (x&u1&u2&->&E);[lia|].
     exists x,u1,(u2++[a]);split;auto.
-    rewrite app_ass;simpl;auto.
+    rewrite <- app_assoc;simpl;auto.
 Qed.
 
 (** ** Subsets of a list *)
@@ -1114,26 +1114,26 @@ Section shuffle.
         intro x;split;[intros (?&(x1&x2&I& -> )&(y1&y2&E& -> ) )
                       |intros (x1&x2&( ? &I&y1&y2&->&E)& -> ) ];
         levi E;subst;clear E.
-        * exists (y1++[b]),x2;split;[|rewrite app_ass;reflexivity].
+        * exists (y1++[b]),x2;split;[|rewrite <- app_assoc;reflexivity].
           eexists;split;[eassumption|].
-          exists y1,x2;rewrite app_ass;split;reflexivity.
-        * exists (y1++b::a0::w),x2;split;[|rewrite app_ass;reflexivity].
+          exists y1,x2;rewrite <- app_assoc;split;reflexivity.
+        * exists (y1++b::a0::w),x2;split;[|rewrite <- app_assoc;reflexivity].
           eexists;split;[eassumption|].
-          exists y1,(a0::w++x2);repeat rewrite app_ass;tauto.
+          exists y1,(a0::w++x2);repeat rewrite <- app_assoc;tauto.
         * symmetry in E1;inversion E1;subst;clear E1.
-          exists x1,(w++b::y2);split;[|rewrite app_ass;reflexivity].
+          exists x1,(w++b::y2);split;[|rewrite <- app_assoc;reflexivity].
           eexists;split;[eassumption|].
-          exists (x1++w),y2;repeat rewrite app_ass;tauto.
+          exists (x1++w),y2;repeat rewrite <- app_assoc;tauto.
         * exists (y1++a::y2);split.
           -- exists y1,y2;tauto.
-          -- exists (y1++[a]),y2;split;rewrite app_ass;reflexivity.
+          -- exists (y1++[a]),y2;split;rewrite <- app_assoc;reflexivity.
         * symmetry in E1;inversion E1;subst;clear E1.
           exists (y1++w++a::x2);split.
-          -- exists (y1++w),x2;split;rewrite app_ass;tauto.
-          -- exists y1,(w++a::x2);rewrite app_ass;tauto.
+          -- exists (y1++w),x2;split;rewrite <- app_assoc;tauto.
+          -- exists y1,(w++a::x2);rewrite <- app_assoc;tauto.
         * exists (x1 ++ a :: a0 :: w ++ y2);split.
-          -- exists x1,(a0::w++y2);rewrite app_ass in I;tauto.
-          -- exists (x1++a::a0::w),y2;repeat rewrite app_ass;simpl;tauto.
+          -- exists x1,(a0::w++y2);rewrite <- app_assoc in I;tauto.
+          -- exists (x1++a::a0::w),y2;repeat rewrite <- app_assoc;simpl;tauto.
   Qed.
   
   (** If [l] has no duplicates, neither does [shuffles l]. *)
@@ -1160,9 +1160,9 @@ Section shuffle.
           levi E;inversion E1;subst;clear E E1.
           -- tauto.
           -- apply I;rewrite eq.
-             rewrite app_ass,in_app_iff;simpl;tauto.
+             rewrite <- app_assoc,in_app_iff;simpl;tauto.
           -- apply I;rewrite eq.
-             rewrite <- app_ass,in_app_iff;simpl;tauto.
+             rewrite app_assoc,in_app_iff;simpl;tauto.
         * revert nd' I;rewrite eq;clear.
           induction m as [|b m];simpl.
           -- intros;apply NoDup_cons;simpl;auto using NoDup_nil.
@@ -1232,7 +1232,7 @@ Qed.
 
 (* begin hide *)
 Create HintDb length.
-Global Hint Resolve filter_length app_length : length.
+Global Hint Resolve filter_length length_app : length.
 
 Global Instance le_plus_Proper : Proper (le ==> le ==> le) plus.
 Proof. intros ? ? ? ? ? ?;lia. Qed.

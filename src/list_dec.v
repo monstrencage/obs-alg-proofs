@@ -349,11 +349,11 @@ Section dec_list.
     case_in a l.
     - left;apply decomposition in I as (l1&l2&->&I).
       exists l1,l2;repeat split;auto.
-      rewrite app_ass;apply rmfst_in;auto.
+      rewrite <- app_assoc;apply rmfst_in;auto.
     - case_in a m.
       + right;left;apply decomposition in I0 as (m1&m2&->&I0).
         exists m1,m2;simpl_In;repeat split;try tauto.
-        repeat rewrite <-app_ass;apply rmfst_in;simpl_In;tauto.
+        repeat rewrite app_assoc;apply rmfst_in;simpl_In;tauto.
       + right;right;rewrite rmfst_notin;simpl_In;tauto.
   Qed.
 
@@ -497,11 +497,11 @@ Section dec_list.
           -- intros a;pose proof (h a) as e;revert e;clear.
              destruct_eqX a b;simpl.
              ++ repeat rewrite filter_app.
-                repeat rewrite app_length in *;simpl.
+                repeat rewrite length_app in *;simpl.
                 simpl_beq;rsimpl.
                 lia.
              ++ repeat rewrite filter_app.
-                repeat rewrite app_length in *;simpl.
+                repeat rewrite length_app in *;simpl.
                 simpl_beq;simpl.
                 lia.
           -- eauto.
